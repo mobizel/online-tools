@@ -8,9 +8,18 @@
         A tool to have various representations of a color/alpha pair
       </h2>
 
+      <div class="controls">
+        Color: #<input v-model="hexWithoutOpacity" placeholder="582982" />
+        Opacity: <input v-model="opacityPercentage" placeholder="90" /> %
+      </div>
+
       <div class="tool">
         <client-only>
-          <color-picker v-model="colors" @input="onUpdateColor" />
+          <color-picker
+            ref="colorPicker"
+            v-model="colors"
+            @input="onUpdateColor"
+          />
         </client-only>
 
         <div v-if="hexColor" class="code-generation">
@@ -53,6 +62,7 @@
 </template>
 
 <script>
+// import Vue from 'vue'
 import ColorPicker from '../components/ColorPicker'
 
 export default {
@@ -66,7 +76,10 @@ export default {
         rgba: { r: 88, g: 41, b: 130, a: 0.73 },
         a: 0.73
       },
-      hexColor: 'BA582982'
+      hexColor: 'BA582982',
+      hexWithoutOpacity: '582982',
+      opacityPercentage: '73',
+      opacityHex: 'BA'
     }
   },
   computed: {
@@ -78,11 +91,32 @@ export default {
         : this.colors.hex
     }
   },
+  watch: {
+    hexWithoutOpacity(hexColor) {
+      const newColor = hexColor + this.opacityHex
+      if (newColor.length === 8) {
+        this.$refs.colorPicker.colorChange({
+          hex: newColor,
+          source: 'hex'
+        })
+      }
+    },
+    opacityPercentage(opacity) {
+      this.colors.rgba.a = opacity / 100
+      this.$refs.colorPicker.colorChange({
+        ...this.colors.rgba,
+        source: 'rgba'
+      })
+    }
+  },
   methods: {
     onUpdateColor(colors) {
       const match = colors.hex8.match(/^#([0-9a-f]{6})([0-9a-f]{2})?/i)
       if (match) {
-        this.hexColor = `${match[2]}${match[1]}`.toUpperCase()
+        this.hexWithoutOpacity = match[1]
+        this.opacityPercentage = Math.round(colors.rgba.a * 100)
+        this.opacityHex = match[2]
+        this.hexColor = `${this.opacityHex}${this.hexWithoutOpacity}`.toUpperCase()
       }
     }
   }
@@ -92,6 +126,10 @@ export default {
 <style lang="scss">
 .tool {
   display: flex;
+}
+
+.controls {
+  padding: 10px;
 }
 
 .code-generation {
