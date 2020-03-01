@@ -42,6 +42,31 @@
               <pre>static const Color black = Color(0x{{ hexColor }});</pre>
             </div>
           </div>
+          <div class="row">
+            <div class="techno">Alpha blending</div>
+            <div class="code">
+              <div>
+                <span>- on a white opaque background</span>
+                <div
+                  class="vc-sketch-presets-color"
+                  :style="alphaBlendingColorOnOpaqueBackgroundStyle('FFFFFF')"
+                ></div>
+                <pre class="inline-color">{{
+                  alphaBlendingColorOnOpaqueBackgroundHex('FFFFFF')
+                }}</pre>
+              </div>
+              <div>
+                <span>- on a black opaque background</span>
+                <div
+                  class="vc-sketch-presets-color"
+                  :style="alphaBlendingColorOnOpaqueBackgroundStyle('000000')"
+                ></div>
+                <pre class="inline-color">{{
+                  alphaBlendingColorOnOpaqueBackgroundHex('000000')
+                }}</pre>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -62,7 +87,7 @@
 </template>
 
 <script>
-// import Vue from 'vue'
+import tinycolor from 'tinycolor2'
 import ColorPicker from '../components/ColorPicker'
 
 export default {
@@ -110,6 +135,28 @@ export default {
     }
   },
   methods: {
+    alphaBlendingColorOnOpaqueBackground(color) {
+      const alphaBlendingColor = { a: 1 }
+      const background = tinycolor(color).toRgb()
+      const alpha = this.colors.a
+      for (const comp of ['r', 'g', 'b']) {
+        alphaBlendingColor[comp] = Math.round(
+          this.colors.rgba[comp] * alpha + (1 - alpha) * background[comp]
+        )
+      }
+      return alphaBlendingColor
+    },
+    alphaBlendingColorOnOpaqueBackgroundStyle(color) {
+      color = this.alphaBlendingColorOnOpaqueBackground(color)
+      return {
+        background: `rgb(${color.r}, ${color.g}, ${color.b}) none repeat scroll 0% 0%`
+      }
+    },
+    alphaBlendingColorOnOpaqueBackgroundHex(color) {
+      return tinycolor(this.alphaBlendingColorOnOpaqueBackground(color))
+        .toHexString()
+        .toUpperCase()
+    },
     onUpdateColor(colors) {
       const match = colors.hex8.match(/^#([0-9a-f]{6})([0-9a-f]{2})?/i)
       if (match) {
@@ -145,6 +192,10 @@ export default {
 
     pre {
       margin-bottom: 5px;
+
+      &.inline-color {
+        display: inline-block;
+      }
     }
   }
 
