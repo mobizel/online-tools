@@ -65,21 +65,34 @@
                   alphaBlendingColorOnOpaqueBackgroundHex('000000')
                 }}</pre>
               </div>
+              <div>
+                <span>- on a custom background</span>
+                <div
+                  v-if="bgColorHex"
+                  class="vc-sketch-presets-color"
+                  :style="
+                    alphaBlendingColorOnOpaqueBackgroundStyle(this.bgColor)
+                  "
+                ></div>
+                <pre v-if="bgColorHex" class="inline-color">{{
+                  alphaBlendingColorOnOpaqueBackgroundHex(this.bgColor)
+                }}</pre>
+                <div class="controls">
+                  Color: #<input v-model="bgColorHex" placeholder="FFFFFF" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="links">
-        <a href="https://nuxtjs.org/" target="_blank" class="button--green">
-          Documentation
-        </a>
         <a
-          href="https://github.com/nuxt/nuxt.js"
+          href="https://github.com/mobizel/..."
           target="_blank"
           class="button--grey"
         >
-          GitHub
+          Fork on GitHub
         </a>
       </div>
     </div>
@@ -104,7 +117,9 @@ export default {
       hexColor: 'BA582982',
       hexWithoutOpacity: '582982',
       opacityPercentage: '73',
-      opacityHex: 'BA'
+      opacityHex: 'BA',
+      bgColorHex: null,
+      bgOpacityPercentage: 100
     }
   },
   computed: {
@@ -114,6 +129,11 @@ export default {
             this.colors.rgba.b
           }, ${Math.round(this.colors.rgba.a * 100) / 100})`
         : this.colors.hex
+    },
+    bgColor() {
+      return tinycolor(this.bgColorHex).setAlpha(
+        this.bgOpacityPercentage / 100.0
+      )
     }
   },
   watch: {
