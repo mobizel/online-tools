@@ -26,20 +26,28 @@
           <div class="row">
             <div class="techno">Raw</div>
             <div class="code">
-              <pre>#{{ hexColor }}</pre>
+              <pre>{{ snippets.raw }}</pre>
             </div>
           </div>
           <div class="row">
             <div class="techno">CSS</div>
             <div class="code">
-              <pre>color: {{ cssColor }};</pre>
-              <pre>background-color: {{ cssColor }};</pre>
+              <pre>{{ snippets.cssColor }}</pre>
+              <pre>{{ snippets.cssBgColor }}</pre>
             </div>
           </div>
           <div class="row">
             <div class="techno">Dart/Flutter</div>
             <div class="code">
-              <pre>static const Color black = Color(0x{{ hexColor }});</pre>
+              <pre>{{ snippets.dart }}</pre>
+              <button
+                v-clipboard:copy="snippets.dart"
+                v-clipboard:success="onCopySuccess"
+                v-clipboard:error="onCopyError"
+                type="button"
+              >
+                Copy!
+              </button>
             </div>
           </div>
           <div class="row">
@@ -134,6 +142,14 @@ export default {
       return tinycolor(this.bgColorHex).setAlpha(
         this.bgOpacityPercentage / 100.0
       )
+    },
+    snippets() {
+      return {
+        raw: `#${this.hexColor}`,
+        cssColor: `color: ${this.cssColor};`,
+        cssBgColor: `background-color: ${this.cssColor};`,
+        dart: `static const Color black = Color(0x${this.hexColor});`
+      }
     }
   },
   watch: {
@@ -155,6 +171,12 @@ export default {
     }
   },
   methods: {
+    onCopySuccess(e) {
+      alert('You just copied: ' + e.text)
+    },
+    onCopyError(e) {
+      alert('Failed to copy texts')
+    },
     alphaBlendingColorOnOpaqueBackground(color) {
       const alphaBlendingColor = { a: 1 }
       const background = tinycolor(color).toRgb()
